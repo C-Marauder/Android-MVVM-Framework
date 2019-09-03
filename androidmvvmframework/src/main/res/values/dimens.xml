@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="toolbarCenterTitleSize">16sp</dimen>
+    <dimen name="toolbarSize">56dp</dimen>
+    <dimen name="appBarElevation">4dp</dimen>
+</resources>

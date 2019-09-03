@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="DialogAnimStyle" parent="android:Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/slide_up</item>
+        <item name="android:windowExitAnimation">@anim/scale_down</item>
+    </style>
+    <style name="BottomDialogStyle" parent="Animation.Design.BottomSheetDialog">
+        <item name="android:windowEnterAnimation">@anim/bottom_slide_up</item>
+        <item name="android:windowExitAnimation">@anim/bottom_slide_down</item>
+    </style>
+    <style name="a" parent="Widget.Design.AppBarLayout"></style>
+</resources>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="titleData"
+            type="androidx.databinding.ObservableField&lt;String>" />
+        <variable
+            name="template"
+            type="com.androidx.androidmvvmframework.ui.model.TemplateData" />
+    </data>
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinator"
+         android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:elevation="@{template.appBarElevation}">
+            <com.google.android.material.appbar.MaterialToolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                toolbarSize="@{template.toolbarSize}"
+                tools:layout_height="@dimen/toolbarSize"
+                tools:background="@color/colorPrimary"
+                tools:navigationIcon="@drawable/navigation"
+                app:navigationIcon="@{template.navigationRes}"
+                themeBackground="@{template.themeColor}">
+                <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/centerTitleView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:text="@{titleData}"
+                    colorTextColor="@{template.centerTitleColor}"
+                    dimenTextSize="@{template.centerTitleSize}"
+                    android:gravity="center"
+                    tools:textSize="@dimen/toolbarCenterTitleSize"
+                    tools:text="@tools:sample/first_names"
+                    tools:textColor="@android:color/background_dark"
+                    android:layout_gravity="center"
+                    />
+            </com.google.android.material.appbar.MaterialToolbar>
+        </com.google.android.material.appbar.AppBarLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

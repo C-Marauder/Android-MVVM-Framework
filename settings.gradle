@@ -1,0 +1,2 @@
+include ':app', ':androidmvvmframework'
+rootProject.name='Android-Framework'
