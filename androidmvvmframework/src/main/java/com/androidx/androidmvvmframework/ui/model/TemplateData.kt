@@ -13,6 +13,7 @@ import com.androidx.androidmvvmframework.R
 import com.androidx.androidmvvmframework.ui.UIFramework
 import com.androidx.androidmvvmframework.ui.colorRes
 import com.androidx.androidmvvmframework.ui.dimenRes
+import com.androidx.androidmvvmframework.ui.sp
 import com.google.android.material.appbar.AppBarLayout
 import com.google.android.material.appbar.MaterialToolbar
 import com.google.android.material.textview.MaterialTextView
@@ -25,9 +26,8 @@ open class TemplateData : BaseObservable() {
         field = value
         notifyPropertyChanged(BR.appBarElevation)
     }
-    @DimenRes
     @get:Bindable
-    var centerTitleSize: Int =R.dimen.toolbarCenterTitleSize
+    var centerTitleSize: Float =16.sp
         set(value) {
             field = value
             notifyPropertyChanged(BR.centerTitleSize)
@@ -63,10 +63,7 @@ open class TemplateData : BaseObservable() {
 
         }
 }
-@BindingAdapter("dimenTextSize")
-fun MaterialTextView.convertDimenResToFloat(@DimenRes resId:Int){
-    textSize = resources.getDimension(resId)
-}
+
 @BindingAdapter("colorTextColor")
 fun MaterialTextView.convertColorResToInt(@ColorRes resId: Int){
     setTextColor(ContextCompat.getColor(context,resId))

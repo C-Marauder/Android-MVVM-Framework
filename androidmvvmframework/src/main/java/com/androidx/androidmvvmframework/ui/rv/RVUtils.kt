@@ -1,4 +1,4 @@
-package com.androidx.androidmvvmframework.ui
+package com.androidx.androidmvvmframework.ui.rv
 
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -10,9 +10,7 @@ import androidx.lifecycle.observe
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-enum class RVState{
-    REFRESH,LOAD
-}
+
 inline fun <reified T : RecyclerView> T.LHRV(init: T.() -> Unit) {
     setHasFixedSize(true)
     layoutManager = LinearLayoutManager(this.context).also {
@@ -33,7 +31,12 @@ inline fun <reified T : RecyclerView> T.rvAdapter(adapter: () -> RecyclerView.Ad
 }
 
 fun RecyclerView.rvItemDecoration(margin: Int, colorRes: Int) {
-    this.addItemDecoration(RVItemDecoration(margin, colorRes))
+    this.addItemDecoration(
+        RVItemDecoration(
+            margin,
+            colorRes
+        )
+    )
 }
 
 fun RecyclerView.rvLoadListener(initPage: Int, loadObserver: MutableLiveData<Boolean>.() -> Unit) {
@@ -42,12 +45,14 @@ fun RecyclerView.rvLoadListener(initPage: Int, loadObserver: MutableLiveData<Boo
     })
 }
 
-inline fun <reified T:RecyclerView> T.rvRefreshListener(swipeRefreshLayout: SwipeRefreshLayout,
-                                                        initState:Boolean,
-                                                        crossinline refresh:MutableLiveData<Boolean>.()->Unit){
+inline fun <reified T : RecyclerView> T.rvRefreshListener(
+    swipeRefreshLayout: SwipeRefreshLayout,
+    initState: Boolean,
+    crossinline refresh: MutableLiveData<Boolean>.() -> Unit
+) {
     val refreshObserver = MutableLiveData<Boolean>()
 
-    refreshObserver.observe(this.context as LifecycleOwner){
+    refreshObserver.observe(this.context as LifecycleOwner) {
         swipeRefreshLayout.isEnabled = true
         swipeRefreshLayout.isRefreshing = false
 
@@ -96,6 +101,9 @@ internal class RVItemDecoration(private val margin: Int, private val colorRes: I
     }
 }
 
+/**
+ * RecyclerView 加载更多监听
+ */
 internal class RvOnScrollListener(
     private val initPage: Int,
     private val load: MutableLiveData<Boolean>.(page: Int) -> Unit

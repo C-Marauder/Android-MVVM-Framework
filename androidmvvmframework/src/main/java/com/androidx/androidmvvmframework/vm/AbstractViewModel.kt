@@ -7,9 +7,7 @@ import androidx.lifecycle.*
 import com.androidx.androidmvvmframework.annotation.AutoWired
 import com.androidx.androidmvvmframework.annotation.Service
 import com.androidx.androidmvvmframework.utils.eLog
-import kotlinx.coroutines.Dispatchers
-import java.util.concurrent.ConcurrentHashMap
-import kotlin.reflect.full.*
+import kotlinx.coroutines.*
 import com.androidx.androidmvvmframework.vm.ViewModelObserver as ViewModelObserver
 
 /**
@@ -19,54 +17,48 @@ import com.androidx.androidmvvmframework.vm.ViewModelObserver as ViewModelObserv
  **/
 interface MVVMView {
     //val mViewDataBinding: ViewDataBinding
-//    val mArgument: Bundle?
-//        get() {
-//            return if (this is Fragment) {
-//                arguments
-//            } else {
-//                throw Exception("${MVVMView::class.simpleName} is not Fragment")
-//            }
-//        }
+
 }
 
 abstract class AbstractViewModel<MV : MVVMView>(application: Application) :
     AndroidViewModel(application) {
     lateinit var mView: MVVMView
     private lateinit var mNetworkObserver: NetworkObserver
-    private val mRepositoryMap: ConcurrentHashMap<String, IRepository<*, *>> by lazy {
-        ConcurrentHashMap<String, IRepository<*, *>>()
-    }
+
     lateinit var mLifecycleOwner: LifecycleOwner
 
     init {
         if (application is NetworkObserver) {
             mNetworkObserver = application
         }
-        try {
-            with(this::class.java) {
-                declaredFields.forEach { field ->
-                    if (field.isAnnotationPresent(AutoWired::class.java)) {
-                        field.isAccessible = true
-                        val mInstance = Class.forName(field.type.canonicalName!!).newInstance()
-                        field.set(this@AbstractViewModel, mInstance)
+        with(this::class.java){
+           runBlocking {
+                try {
+                    async {
+                        declaredFields.filter {
+                            it.isAnnotationPresent(AutoWired::class.java)
+                        }.forEach {field->
+                                field.isAccessible = true
+                                val mInstance = Class.forName(field.type.canonicalName!!).newInstance()
+                                field.set(this@AbstractViewModel, mInstance)
+                            }
                     }
-                }
-                declaredMethods.forEach { method ->
-                    if (method.isAnnotationPresent(Service::class.java)) {
-                        mRepositoryMap[method.name] =
-                            method.getAnnotation(Service::class.java).repository.createInstance()
+                    async {
+                        declaredFields.filter {
+                            it.isAnnotationPresent(Service::class.java)
+                        }.forEach{ field ->
+                                field.isAccessible = true
+                                val mInstance = Class.forName(field.type.canonicalName!!).newInstance()
+                                field.set(this@AbstractViewModel,mInstance)
+                        }
                     }
+
+                }catch (e:Exception){
+                    eLog(e.message ?: "null")
                 }
             }
-
-        } catch (e: Exception) {
-            eLog(e.message ?: "null")
         }
 
-    }
-
-    private val mViewModelObservers: ConcurrentHashMap<String, ViewModelObserver<*>> by lazy {
-        ConcurrentHashMap<String, ViewModelObserver<*>>()
     }
 
     private fun isConnected(): Boolean {
@@ -77,37 +69,23 @@ abstract class AbstractViewModel<MV : MVVMView>(application: Application) :
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun <T> getViewModelObserver(service: String): ViewModelObserver<T> {
-        var mViewModelObserver = mViewModelObservers[service]
-        if (mViewModelObserver == null) {
-            mViewModelObserver = ViewModelObserver<T>()
-            mViewModelObservers[service] = mViewModelObserver
-        }
-
-        return mViewModelObserver as ViewModelObserver<T>
-
-    }
 
     @Suppress("UNCHECKED_CAST")
     fun <E, T> observe(
-        service: String,
-        params: E?,
-        stateObserver: (viewModelObserver: ViewModelObserver<T>) -> Unit
+        service: Response<T>,
+        stateObserver: (viewModelObserver:ViewModelObserver<T>)->Unit
     ) {
-        val repository = mRepositoryMap[service] as IRepository<E,T>
-        val mViewModelObserver = getViewModelObserver<T>(service)
+        val mViewModelObserver = ViewModelObserver<T>()
         stateObserver(mViewModelObserver)
         if (isConnected()) {
             liveData(viewModelScope.coroutineContext + Dispatchers.IO) {
                 try {
                     emit(Result.loading<T>())
-                    when (val response =
-                        repository.loadFromDB() ?: repository.loadFromRemote(params)) {
+                    when (service) {
                         is SuccessResponse<T> -> emit(
-                            Result.success<T>(response.code, response.data!!, response.message)
+                            Result.success<T>(service.code, service.data!!, service.message)
                         )
-                        is ErrorResponse<T> -> emit(Result.error<T>(response.message))
+                        is ErrorResponse<T> -> emit(Result.error<T>(service.message))
                         is EmptyResponse<T> -> emit(Result.empty<T>())
                     }
                 } catch (e: Exception) {
@@ -128,12 +106,6 @@ abstract class AbstractViewModel<MV : MVVMView>(application: Application) :
     }
 
 }
-
-interface IRepository<E, T> {
-    open fun loadFromDB(): Response<T>? = null
-    fun loadFromRemote(params: E?): Response<T>
-}
-
 
 sealed class Response<T> {
     companion object {

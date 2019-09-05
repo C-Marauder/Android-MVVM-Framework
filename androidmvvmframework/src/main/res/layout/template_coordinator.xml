@@ -10,7 +10,7 @@
             name="template"
             type="com.androidx.androidmvvmframework.ui.model.TemplateData" />
     </data>
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <com.google.android.material.circularreveal.coordinatorlayout.CircularRevealCoordinatorLayout
         android:id="@+id/coordinator"
          android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -18,6 +18,8 @@
             android:id="@+id/appBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingTop="24dp"
+            android:background="?attr/colorPrimary"
             app:elevation="@{template.appBarElevation}">
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/toolbar"
@@ -35,14 +37,14 @@
                     android:layout_height="match_parent"
                     android:text="@{titleData}"
                     colorTextColor="@{template.centerTitleColor}"
-                    dimenTextSize="@{template.centerTitleSize}"
+                    android:textSize="@{template.centerTitleSize}"
                     android:gravity="center"
                     tools:textSize="@dimen/toolbarCenterTitleSize"
                     tools:text="@tools:sample/first_names"
                     tools:textColor="@android:color/background_dark"
-                    android:layout_gravity="center"
-                    />
+                    android:layout_gravity="center"/>
             </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.AppBarLayout>
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+  </com.google.android.material.circularreveal.coordinatorlayout.CircularRevealCoordinatorLayout>
 </layout>
